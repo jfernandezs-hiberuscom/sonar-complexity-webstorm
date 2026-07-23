@@ -1,0 +1,61 @@
+<idea-plugin>
+    <id>com.github.sonarcomplexity.webstorm</id>
+    <name>Sonar Complexity</name>
+    <vendor url="https://github.com/kevinjshah2207/sonar-complexity">jopo79</vendor>
+
+    <description><![CDATA[
+    <b>Sonar Complexity Plugin for WebStorm & IntelliJ IDEA</b><br>
+    Surfaces function-level SonarQube Cognitive Complexity (S3776 standard) and Cyclomatic Complexity directly in the editor.<br>
+    <ul>
+        <li>Inline complexity score badges and gutter markers above function declarations</li>
+        <li>Customizable complexity thresholds (Low, Moderate, High)</li>
+        <li>Inspection warnings in the Problems view for overly complex functions</li>
+        <li>Supports JavaScript and TypeScript</li>
+    </ul>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.lang</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Settings UI -->
+        <applicationService serviceImplementation="com.github.sonarcomplexity.settings.ComplexitySettingsState"/>
+        <applicationConfigurable instance="com.github.sonarcomplexity.settings.ComplexitySettingsConfigurable"
+                                 id="com.github.sonarcomplexity.settings"
+                                 displayName="Sonar Complexity"/>
+
+        <!-- Gutter & Line Markers for Function Complexity -->
+        <codeInsight.lineMarkerProvider
+                language=""
+                implementationClass="com.github.sonarcomplexity.inlay.ComplexityLineMarkerProvider"/>
+
+        <!-- Code Inspection / Problem Highlighting -->
+        <localInspection
+                language=""
+                displayName="High Cognitive Complexity Function"
+                groupPath="Code metrics"
+                groupName="Code complexity"
+                enabledByDefault="true"
+                level="WARNING"
+                implementationClass="com.github.sonarcomplexity.inspection.ComplexityInspectionTool"/>
+
+        <!-- Notification Group -->
+        <notificationGroup id="Sonar Complexity Notifications"
+                           displayType="BALLOON"/>
+    </extensions>
+
+    <projectListeners>
+        <listener class="com.github.sonarcomplexity.listeners.ComplexityFileOpenListener"
+                  topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
+    </projectListeners>
+
+    <actions>
+        <action id="com.github.sonarcomplexity.actions.CalculateComplexityAction"
+                class="com.github.sonarcomplexity.actions.CalculateComplexityAction"
+                text="Calculate Sonar Complexity"
+                description="Calculates cognitive and cyclomatic complexity for all functions in the current file">
+            <add-to-group group-id="EditorPopupMenu" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt shift C"/>
+        </action>
+    </actions>
+</idea-plugin>
